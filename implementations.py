@@ -2,6 +2,7 @@ import numpy as np
 
 
 
+
 def calculate_mse(e):
     """Calculate the mse for vector e."""
     return 1 / 2 * np.mean(e**2)
@@ -11,21 +12,7 @@ def compute_error(y, tx, w):
     return y - tx.dot(w)
 
 
-def compute_gradient(y, tx, w):
-    """Computes the gradient at w.
 
-    Args:
-        y: numpy array of shape=(N, )
-        tx: numpy array of shape=(N,2)
-        w: numpy array of shape=(2, ). The vector of model parameters.
-
-    Returns:
-        An numpy array of shape (2, ) (same shape as w), containing the gradient of the loss at w.
-    """
-    ### SOLUTION
-    err = compute_error(y,tx,w)
-    grad = -tx.T.dot(err) / len(err)
-    return grad, err
 
 
 def compute_gradient(y, tx, w):
@@ -72,26 +59,12 @@ def mean_squared_error_gd(y, tx, initial_w,max_iters, gamma):
 
     return loss, w
 
-def compute_stoch_gradient(y, tx, w):
-    """Compute a stochastic gradient at w from a data sample batch of size B, where B < N, and their corresponding labels.
-
-    Args:
-        y: numpy array of shape=(B, )
-        tx: numpy array of shape=(B,2)
-        w: numpy array of shape=(2, ). The vector of model parameters.
-
-    Returns:
-        A numpy array of shape (2, ) (same shape as w), containing the stochastic gradient of the loss at w.
-    """
-
-    err = compute_error(y,tx,w)
-    grad = -tx.T.dot(err) / len(err)
-    return grad, err
 
 
-def stochastic_gradient_descent(y, tx, initial_w, batch_size, max_iters, gamma):
+
+def mean_squared_error_sgd(y, tx, initial_w, batch_size , max_iters, gamma):
     """The Stochastic Gradient Descent algorithm (SGD).
-
+ 
     Args:
         y: numpy array of shape=(N, )
         tx: numpy array of shape=(N,2)
@@ -111,11 +84,11 @@ def stochastic_gradient_descent(y, tx, initial_w, batch_size, max_iters, gamma):
 
     for n_iter in range(max_iters):
         ### SOLUTION
-        for y_batch, tx_batch in batch_iter(
+        for y_batch, tx_batch in n_iter(
             y, tx, batch_size=batch_size, num_batches=1
         ):
             # compute a stochastic gradient and loss
-            grad, _ = compute_stoch_gradient(y_batch, tx_batch, w)
+            grad, _ = compute_gradient(y_batch, tx_batch, w)
             # update w through the stochastic gradient update
             w = w - gamma * grad
             # calculate loss
@@ -248,6 +221,12 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
         loss = calculate_mse(e)
 
     return loss, w 
+
+
+
+
+
+
 
 
 
