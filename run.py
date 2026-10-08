@@ -14,6 +14,7 @@ def main():
     
     #True a modifier quand on run le test (juste pour le debug)
     x_train, x_test, y_train, train_ids, test_ids = helpers.load_csv_data("./data", True)
+    #TODO faire le cross validation set 
 
     N, D = x_train.shape
 
@@ -40,7 +41,7 @@ def main():
 
     args = parser.parse_args()
 
-    loss = 0
+    loss = np.inf
 
 
 
