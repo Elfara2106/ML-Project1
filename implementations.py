@@ -210,7 +210,11 @@ def ridge_regression(y, tx, lambda_):
     aI = 2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1])
     a = tx.T.dot(tx) + aI
     b = tx.T.dot(y)
-    return np.linalg.solve(a, b)
+    w = np.linalg.solve(a, b)
+
+    err = compute_error(y,tx,w)
+    calculate_mse(err)
+    return w, loss
 
 
 def sigmoid(t):
