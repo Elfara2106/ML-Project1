@@ -152,6 +152,7 @@ def ridge_regression(y, tx, lambda_):
     return np.linalg.solve(a, b)
 
 
+
 def sigmoid(t):
     """apply sigmoid function on t.
 
