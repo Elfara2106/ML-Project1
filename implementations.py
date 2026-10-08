@@ -61,7 +61,7 @@ def mean_squared_error_gd(y, tx, initial_w,max_iters, gamma):
 
         
 
-    return w, loss
+    return loss, w 
 
 
 
@@ -104,7 +104,7 @@ def mean_squared_error_sgd(y, tx, initial_w, batch_size , max_iters, gamma):
             
 
         
-    return w, loss
+    return loss, w 
 
 
 def least_squares(y, tx):
