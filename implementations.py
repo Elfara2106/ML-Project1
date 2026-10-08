@@ -61,7 +61,7 @@ def mean_squared_error_gd(y, tx, initial_w,max_iters, gamma):
 
         
 
-    return loss, w 
+    return w, loss
 
 
 
@@ -104,7 +104,7 @@ def mean_squared_error_sgd(y, tx, initial_w, batch_size , max_iters, gamma):
             
 
         
-    return loss, w 
+    return w, loss
 
 
 def least_squares(y, tx):
@@ -128,7 +128,7 @@ def least_squares(y, tx):
     w = np.linalg.solve(a, b)
     e = compute_error(y,tx,w)
     mse =  calculate_mse(e)
-    return mse, w 
+    return w, mse
 
 def ridge_regression(y, tx, lambda_):
     """implement ridge regression.
@@ -226,7 +226,7 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
         e = compute_error(y, tx, w)
         loss = calculate_mse(e)
 
-    return loss, w 
+    return w, loss 
 
 
 
