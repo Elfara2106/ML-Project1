@@ -128,7 +128,7 @@ def least_squares(y, tx):
     w = np.linalg.solve(a, b)
     e = compute_error(y,tx,w)
     mse =  calculate_mse(e)
-    return w, mse
+    return mse, w 
 
 def ridge_regression(y, tx, lambda_):
     """implement ridge regression.
@@ -150,7 +150,6 @@ def ridge_regression(y, tx, lambda_):
     a = tx.T.dot(tx) + aI
     b = tx.T.dot(y)
     return np.linalg.solve(a, b)
-
 
 
 def sigmoid(t):
