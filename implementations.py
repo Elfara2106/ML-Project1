@@ -54,10 +54,13 @@ def mean_squared_error_gd(y, tx, initial_w,max_iters, gamma):
     
     for i in range(max_iters):
 
+        #the new w
+        w = w - gamma * grad
+        #compute the loss and error with the new 
         grad, err = compute_gradient(y, tx, w)
         loss = calculate_mse(err)
 
-        w = w - gamma * grad
+        
 
         
 
@@ -93,10 +96,11 @@ def mean_squared_error_sgd(y, tx, initial_w, batch_size , max_iters, gamma):
         for y_batch, tx_batch in n_iter(
             y, tx, batch_size=batch_size, num_batches=1
         ):
-            # compute a stochastic gradient and loss
-            grad, e = compute_gradient(y_batch, tx_batch, w)
+            
             # update w through the stochastic gradient update
             w = w - gamma * grad
+            # compute the gradient with the new w
+            grad, e = compute_gradient(y_batch, tx_batch, w)
             # calculate loss
             
             loss = calculate_mse(e)
@@ -221,8 +225,9 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
     gr = calculate_sigmoid_gradient(y,tx,w)
     w = initial_w
     for i in range(max_iters):
-        h = calculate_hessian(y, tx, w)
         w = w - gamma * (np.linalg.solve(h, gr))
+        h = calculate_hessian(y, tx, w)
+        
         e = compute_error(y, tx, w)
         loss = calculate_mse(e)
 
