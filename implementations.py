@@ -280,9 +280,11 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
             w: optimal w
 
     """
-    h = calculate_hessian(y, tx, initial_w)
-    gr = calculate_sigmoid_gradient(y,tx,w)
+
     w = initial_w
+    h = calculate_hessian(y, tx, w)
+    gr = calculate_sigmoid_gradient(y,tx,w)
+    
 
     e = compute_error(y, tx, w) 
     loss = calculate_mse(e)
