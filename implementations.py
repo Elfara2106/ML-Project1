@@ -264,6 +264,12 @@ def calculate_sigmoid_gradient(y, tx, w):
     return grad 
 
 
+def compute_log_loss(y,tx,w):
+    z = tx @ w
+    loss_log = np.mean(np.log(1 + np.exp(z)) - y * z)
+    return loss_log
+
+
 
 def logistic_regression(y, tx, initial_w,max_iters, gamma):
     """Implementation of logistic regression
@@ -286,9 +292,8 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
     gr = calculate_sigmoid_gradient(y,tx,w)
     
 
-    z = tx @ w
-    loss = np.mean(np.log(1 + np.exp(z)) - y * z)
-
+    
+    loss = compute_log_loss(y,tx,w)
 
     for i in range(max_iters):
         h = calculate_hessian(y, tx, w)
@@ -296,8 +301,8 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
         w = w - gamma * (np.linalg.solve(h, gr))
         
         
-        e = compute_error(y, tx, w)
-        loss = calculate_mse(e)
+        
+        loss =  compute_log_loss(y,tx,w)
 
     return w, loss 
 
