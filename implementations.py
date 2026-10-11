@@ -309,20 +309,15 @@ def reg_logistic_regression(y, tx, lambda_,initial_w, max_iters, gamma):
     
     for i in range(max_iters):
      
-        z = tx @ w
-        pred = sigmoid(z)
         
         
-        gradient = (1 / N) * tx.T @ (pred - y) + 2 * lambda_ * w
+        gr = calculate_sigmoid_gradient(y,tx, w) + 2 * lambda_ * w
         
    
-        w = w - gamma * gradient
-        
+        w = w - gamma * gr
 
-    z = tx @ w
     
-    
-    loss = np.mean(np.log(1 + np.exp(z)) - y * z) + lambda_ * np.sum(w**2)
+    loss = compute_log_loss(y,tx, w)
     
     return w, loss
 
