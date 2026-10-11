@@ -227,25 +227,6 @@ def sigmoid(t):
 
 
 
-def calculate_hessian(y, tx, w):
-    """return the Hessian of the sigmoid.
-
-    Args:
-        y:  shape=(N, 1)
-        tx: shape=(N, D)
-        w:  shape=(D, 1)
-
-    Returns:
-        a hessian matrix of shape=(D, D)
-    """
-    z = tx.dot(w)
-    pred = sigmoid(z)
-    S = pred * (1 - pred)
-    #np.newaxis to solve dimentiality issue
-    H = tx.T.dot(S[:, np.newaxis] * tx) / len(y)
-    return H 
-
-
 def calculate_sigmoid_gradient(y, tx, w):
     """compute the gradient of loss according to the sigmoid function.
     
@@ -288,7 +269,7 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
     """
 
     w = initial_w
-    h = calculate_hessian(y, tx, w)
+    
     gr = calculate_sigmoid_gradient(y,tx,w)
     
 
@@ -296,9 +277,9 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
     loss = compute_log_loss(y,tx,w)
 
     for i in range(max_iters):
-        h = calculate_hessian(y, tx, w)
+        
         gr = calculate_sigmoid_gradient(y,tx,w)
-        w = w - gamma * (np.linalg.solve(h, gr))
+        w = w - gamma * gr
         
         
         
