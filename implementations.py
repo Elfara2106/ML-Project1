@@ -286,8 +286,8 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
     gr = calculate_sigmoid_gradient(y,tx,w)
     
 
-    e = compute_error(y, tx, w) 
-    loss = calculate_mse(e)
+    z = tx @ w
+    loss = np.mean(np.log(1 + np.exp(z)) - y * z)
 
 
     for i in range(max_iters):
