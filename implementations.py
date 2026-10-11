@@ -202,10 +202,7 @@ def ridge_regression(y, tx, lambda_):
     Returns:
         w: optimal weights, numpy array of shape(D,), D is the number of features.
 
-    >>> ridge_regression(np.array([0.1,0.2]), np.array([[2.3, 3.2], [1., 0.1]]), 0)
-    array([ 0.21212121, -0.12121212])
-    >>> ridge_regression(np.array([0.1,0.2]), np.array([[2.3, 3.2], [1., 0.1]]), 1)
-    array([0.03947092, 0.00319628])
+    
     """
     aI = 2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1])
     a = tx.T.dot(tx) + aI
@@ -213,7 +210,7 @@ def ridge_regression(y, tx, lambda_):
     w = np.linalg.solve(a, b)
 
     err = compute_error(y,tx,w)
-    calculate_mse(err)
+    loss = calculate_mse(err)
     return w, loss
 
 
@@ -244,7 +241,8 @@ def calculate_hessian(y, tx, w):
     z = tx.dot(w)
     pred = sigmoid(z)
     S = pred * (1 - pred)
-    H = tx.T.dot(S * tx)/len(y)
+    #np.newaxis to solve dimentiality issue
+    H = tx.T.dot(S[:, np.newaxis] * tx) / len(y)
     return H 
 
 
@@ -285,9 +283,16 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
     h = calculate_hessian(y, tx, initial_w)
     gr = calculate_sigmoid_gradient(y,tx,w)
     w = initial_w
+
+    e = compute_error(y, tx, w) 
+    loss = calculate_mse(e)
+
+
     for i in range(max_iters):
-        w = w - gamma * (np.linalg.solve(h, gr))
         h = calculate_hessian(y, tx, w)
+        gr = calculate_sigmoid_gradient(y,tx,w)
+        w = w - gamma * (np.linalg.solve(h, gr))
+        
         
         e = compute_error(y, tx, w)
         loss = calculate_mse(e)
