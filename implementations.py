@@ -288,6 +288,44 @@ def logistic_regression(y, tx, initial_w,max_iters, gamma):
     return w, loss 
 
 
+def reg_logistic_regression(y, tx, lambda_,initial_w, max_iters, gamma):
+    """Implementation of logistic regression with regularization
+        
+            Args:
+                y: numpy array of shape=(N, )
+                tx: numpy array of shape=(N,2)
+                initial_w: numpy array of shape=(2, ). The initial guess (or the initialization) for the model parameters
+                max_iters: a scalar denoting the total number of iterations of SGD
+                gamma: a scalar denoting the stepsize
+        
+            Returns:
+                loss: optimal loss value
+                w: optimal w
+    
+        """
+    
+    w = initial_w
+    N = len(y)
+    
+    for i in range(max_iters):
+     
+        z = tx @ w
+        pred = sigmoid(z)
+        
+        
+        gradient = (1 / N) * tx.T @ (pred - y) + 2 * lambda_ * w
+        
+   
+        w = w - gamma * gradient
+        
+
+    z = tx @ w
+    
+    
+    loss = np.mean(np.log(1 + np.exp(z)) - y * z) + lambda_ * np.sum(w**2)
+    
+    return w, loss
+
 
 
 
