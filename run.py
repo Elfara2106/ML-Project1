@@ -18,6 +18,7 @@ def main():
     #TODO faire le cross validation set 
 
     N, D = x_train.shape
+    print(D)
 
 
     initial_w = np.zeros(D)
