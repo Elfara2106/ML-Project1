@@ -100,7 +100,7 @@ def main():
             start = time.time()
             f1s, accs = cross_validate(
                 x, y, "log", feature_kwargs, METHOD_PARAMS["log"], args.k_fold
-            )
+            )           
             report(name, f1s, accs, start)
     else:
         print("Comparison of the methods (special codes + one-hot)")

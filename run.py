@@ -10,12 +10,12 @@ ones of our best submission.
 """
 
 import argparse
-
 import numpy as np
-
+import copy
 import helpers
 import implementations
 import preprocessing
+import matplotlib.pyplot as plt
 
 METHODS = [
     "least_squares",
@@ -77,6 +77,12 @@ def parse_args():
         default="submission.csv",
         help="Name of the submission file",
     )
+
+    parser.add_argument(
+        "--tune",
+        action="store_true",
+        help="if activated, search the best hyperparameter for mean square gd, sgd and logistic regression",
+    )
     return parser.parse_args()
 
 
@@ -119,6 +125,121 @@ def train(method, y, tx, args):
         )
     raise ValueError(f"Unknown method {method}")
 
+def tune_hyperparameters(x, y, args, k_fold=5, seed=1):
+    """Finds the best hyperparameter and plots the validation curve."""
+    if args.method == "least_squares":
+        print("Least_squares has no hyperparameter to tune.")
+        return args
+
+    print(f"\n---Tuning hyperparameters for {args.method} ---")
+    
+    # 1. Configuration based on the method
+    if args.method in ["ridge", "reg_log"]:
+        param_name = "lambda_"
+        param_grid = np.logspace(-5, 0, 8) # 12 values between 10^-5 and 1
+    else: 
+        param_name = "gamma"
+        param_grid = np.logspace(-4, 0, 10) # 10 values between 10^-4 and 1
+
+    best_param_val = getattr(args, param_name)
+    best_f1 = -1
+
+    feature_kwargs = dict(
+        nan_threshold=args.nan_threshold,
+        fix_codes=args.fix_codes,
+        one_hot=args.one_hot,
+        scale_binary=args.method != "mean_square_sgd",
+    )
+
+    folds = preprocessing.k_fold_indices(len(y), k_fold, seed)
+
+    # --- NEW: Lists for the plot ---
+    mean_train_scores = []
+    mean_val_scores = []
+    tested_params = []
+
+    for val in param_grid:
+        current_args = copy.deepcopy(args)
+        if param_name == "lambda_":
+            current_args.lambda_ = val
+        else:
+            current_args.gamma = val
+            
+        f1_tr_scores = []
+        f1_te_scores = []
+        
+        for k in range(k_fold):
+            te_idx = folds[k]
+            tr_idx = np.concatenate([folds[i] for i in range(k_fold) if i != k])
+            
+            tx_tr, tx_te = preprocessing.build_features(x[tr_idx], x[te_idx], **feature_kwargs)
+            
+            # Training
+            w, _ = train(current_args.method, y[tr_idx], tx_tr, current_args)
+            threshold, _ = preprocessing.best_threshold(tx_tr, w, y[tr_idx])
+            
+            # Validation (Test) Score
+            y_pred_te = preprocessing.predict_labels(tx_te, w, threshold)
+            f1_te_scores.append(preprocessing.f1_score(y[te_idx], y_pred_te))
+            
+            # Training Score - Needed for a proper validation curve
+            y_pred_tr = preprocessing.predict_labels(tx_tr, w, threshold)
+            f1_tr_scores.append(preprocessing.f1_score(y[tr_idx], y_pred_tr))
+            
+        mean_f1_te = np.mean(f1_te_scores)
+        mean_f1_tr = np.mean(f1_tr_scores)
+        
+        # Add to lists for plotting
+        mean_val_scores.append(mean_f1_te)
+        mean_train_scores.append(mean_f1_tr)
+        tested_params.append(val)
+        
+        print(f"Test {param_name} = {val:.1e}  -> Train F1 = {mean_f1_tr:.4f} | Val F1 = {mean_f1_te:.4f}")
+        
+        if mean_f1_te > best_f1:
+            best_f1 = mean_f1_te
+            best_param_val = val
+
+    print(f"Best {param_name} found: {best_param_val:.1e} (F1 = {best_f1:.4f})\n")
+    
+    # --- NEW: Validation Curve Plot Generation ---
+    plt.figure(figsize=(9, 6))
+    
+    # semilogx so the X-axis is logarithmic (essential for lambda and gamma)
+    plt.semilogx(tested_params, mean_train_scores, marker='o', color='blue', linewidth=2, label='Train F1 Score')
+    plt.semilogx(tested_params, mean_val_scores, marker='s', color='red', linewidth=2, label='Validation F1 Score')
+    
+    # Aesthetics
+    plt.title(f"Validation curve for method: {args.method}", fontsize=14, pad=15)
+    plt.xlabel(f"Hyperparameter {param_name} (log scale)", fontsize=12)
+    plt.ylabel("F1 Score", fontsize=12)
+    
+    # Dashed line to indicate the optimal point
+    plt.axvline(x=best_param_val, color='black', linestyle='--', alpha=0.7, 
+                label=f'Best {param_name} ({best_param_val:.1e})')
+    
+    plt.legend(fontsize=11)
+    plt.grid(True, which="both", ls="--", alpha=0.5)
+    
+    # Remove top and right borders for a cleaner look
+    ax = plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    
+    # Smart save (uses the method name)
+    filename = f"validation_curve_{args.method}.pdf"
+    plt.tight_layout()
+    plt.savefig(filename, format='pdf', dpi=300)
+    print(f"Plot saved as '{filename}'")
+    plt.show()
+
+    # Update arguments with the best found value
+    if param_name == "lambda_":
+        args.lambda_ = best_param_val
+    else:
+        args.gamma = best_param_val
+        
+    return args
 
 def main():
     args = parse_args()
@@ -129,6 +250,9 @@ def main():
     )
     print(f"Data loaded: x_train {x_train.shape}, x_test {x_test.shape}")
     print(f"Fraction of positive labels: {np.mean(y_train == 1):.3f}")
+
+    if args.tune:
+        args = tune_hyperparameters(x_train, y_train, args)
 
     tx_train, tx_test = preprocessing.build_features(
         x_train,
