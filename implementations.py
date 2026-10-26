@@ -3,9 +3,8 @@
 All functions return (w, loss) where w is the last weight vector and loss the
 corresponding cost, computed on the full dataset and without penalty term.
 """
-        
-import numpy as np
 
+import numpy as np
 
 # ---------------------------------------------------------------------------
 # Linear regression helpers
