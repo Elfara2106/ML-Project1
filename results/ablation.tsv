@@ -1,0 +1,6 @@
+step	f1_mean	f1_std	acc_mean
+baseline (median imputation)	0.4123	0.0036	0.8665
++ special codes	0.4244	0.0061	0.8731
++ one-hot categorical	0.4387	0.0046	0.8782
++ NaN indicators	0.4387	0.0048	0.8780
++ polynomial (deg 3)	0.4391	0.0052	0.8774
